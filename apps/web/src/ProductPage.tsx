@@ -53,19 +53,18 @@ export default function ProductPage({ slug }: { slug: string }) {
         <div style={{ color: "#999", fontSize: 13 }}>{stock ? `${stock.stock} disponibles` : ""}</div>
         <button
           onClick={addToCart}
-          style={{ marginTop: 16, width: "100%", padding: 16, fontSize: 18, border: 0, borderRadius: 6, background: "#9BD3AE", color: "#fff" }}
+          style={{ marginTop: 16, width: "100%", padding: 16, fontSize: 18, border: 0, borderRadius: 6, background: "#1B5E20", color: "#fff" }}
         >
           Agregar al carrito
         </button>
         {added ? <div style={{ marginTop: 8 }}>Agregado. Total: {formatMxn(added.total)}</div> : null}
         <h2 style={{ fontSize: 16, marginTop: 24 }}>Descripción</h2>
         <div style={{ fontSize: 14 }}>{product.description}</div>
-        <div style={{ height: 320 }} />
       </div>
       {promo ? (
-        <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, height: 380, background: "#FFD54F", padding: 24, boxSizing: "border-box", fontSize: 22 }}>
+        <div style={{ background: "#FFD54F", color: "#1A1A1A", padding: 16, fontSize: 16 }}>
           <b>{promo.text}</b>
-          <div style={{ fontSize: 14, marginTop: 8 }}>Usa el código BIENVENIDA en tu primera compra.</div>
+          <div style={{ fontSize: 14, marginTop: 4 }}>Usa el código BIENVENIDA en tu primera compra.</div>
         </div>
       ) : null}
     </div>
