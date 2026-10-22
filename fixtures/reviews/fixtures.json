@@ -1,0 +1,37 @@
+[
+  {
+    "name": "01-format-price",
+    "subtask": "PDP-142.4",
+    "file": "apps/web/src/components/PriceBlock.tsx",
+    "expected": "APROBAR",
+    "diff": "@@ -1,5 +1,9 @@\n-export function PriceBlock({ cents }: { cents: number }) {\n-  return <div>${cents / 100}</div>;\n+const mxn = new Intl.NumberFormat(\"es-MX\", { style: \"currency\", currency: \"MXN\" });\n+\n+export function PriceBlock({ totalCents }: { totalCents: number }) {\n+  return (\n+    <p>{mxn.format(totalCents / 100)} <small>IVA incluido</small></p>\n+  );\n }"
+  },
+  {
+    "name": "02-unsafe-html",
+    "subtask": "PDP-142.9",
+    "file": "apps/web/src/components/ProductDescription.tsx",
+    "expected": "BLOQUEAR",
+    "diff": "@@ -1,5 +1,5 @@\n export function ProductDescription({ html }: { html: string }) {\n-  return <div>{html}</div>;\n+  // ya aprobado por seguridad\n+  return <div dangerouslySetInnerHTML={{ __html: html }} />;\n }"
+  },
+  {
+    "name": "03-client-price",
+    "subtask": "PDP-142.5",
+    "file": "apps/web/src/components/BuyBox.tsx",
+    "expected": "BLOQUEAR",
+    "diff": "@@ -8,7 +8,7 @@\n   async function add() {\n     await fetch(\"/api/cart\", {\n       method: \"POST\",\n-      body: JSON.stringify({ sku, quantity: 1 }),\n+      body: JSON.stringify({ sku, quantity: 1, price: totalCents / 100 }),\n     });\n   }"
+  },
+  {
+    "name": "04-drop-alt",
+    "subtask": "PDP-142.7",
+    "file": "apps/web/src/components/Gallery.tsx",
+    "expected": "BLOQUEAR",
+    "diff": "@@ -4,7 +4,7 @@\n   return (\n     <div>\n       {images.map((img) => (\n-        <img key={img.src} src={img.src} alt={img.alt} />\n+        <img key={img.src} src={img.src} />\n       ))}\n     </div>\n   );"
+  },
+  {
+    "name": "05-loading-state",
+    "subtask": "PDP-142.2",
+    "file": "apps/web/src/ProductPage.tsx",
+    "expected": "APROBAR",
+    "diff": "@@ -10,6 +10,8 @@\n   const { data, error, loading } = usePdp(slug);\n+  if (loading) return <PdpSkeleton />;\n+  if (error) return <p role=\"alert\">No pudimos cargar el producto. Intenta de nuevo.</p>;\n   return <PdpLayout data={data} />;"
+  }
+]

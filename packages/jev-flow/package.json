@@ -1,0 +1,6 @@
+{
+  "name": "@demo/jev-flow",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts"
+}

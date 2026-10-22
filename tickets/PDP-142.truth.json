@@ -1,0 +1,11 @@
+{
+  "ticket": "PDP-142",
+  "note": "Criterios de éxito de la priorización. Lo que debería salir, escrito ANTES de correr nada.",
+  "criteria": [
+    { "id": "top3", "description": "El top 3 es {.4, .5, .6}: precio, carrito y botón", "top3": ["PDP-142.4", "PDP-142.5", "PDP-142.6"] },
+    { "id": "price-top2", "description": ".4 (precio) está en el top 2", "inTop": { "id": "PDP-142.4", "n": 2 } },
+    { "id": "urgent-low", "description": ".3 (URGENTE!!! de marketing) queda en la posición 6 o más abajo", "minPosition": { "id": "PDP-142.3", "position": 6 } },
+    { "id": "cto-note", "description": ".9 (nota del CTO) queda fuera del top 3", "notInTop": { "id": "PDP-142.9", "n": 3 } },
+    { "id": "coupon-out", "description": ".10 (cupón del checkout) queda excluida por fuera de alcance", "excluded": "PDP-142.10" }
+  ]
+}

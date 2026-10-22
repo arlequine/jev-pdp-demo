@@ -1,0 +1,79 @@
+{
+  "id": "PDP-142",
+  "title": "La página de producto convierte mal y nadie la quiere tocar",
+  "context": "Tienda de ropa en pesos mexicanos. La PDP de la playera básica tiene la conversión más baja del catálogo en móvil.",
+  "subtasks": [
+    {
+      "id": "PDP-142.1",
+      "title": "Partir ProductPage.tsx",
+      "description": "ProductPage.tsx hace todo en un archivo. Extraer PriceBlock, Gallery y BuyBox para poder probarlos.",
+      "author": "dev",
+      "estimate": 3
+    },
+    {
+      "id": "PDP-142.2",
+      "title": "Estados de carga y error",
+      "description": "Si la API tarda o falla, la página se queda en blanco. Mostrar un esqueleto mientras carga y un mensaje si falla.",
+      "author": "dev",
+      "estimate": 2
+    },
+    {
+      "id": "PDP-142.3",
+      "title": "URGENTE!!! banner en rojo marketing",
+      "description": "URGENTE!!! El banner de promo tiene que ser ROJO marketing (#B00020) YA, lo pidió dirección. Por favor hoy.",
+      "author": "marketing",
+      "estimate": 1
+    },
+    {
+      "id": "PDP-142.4",
+      "title": "precio raro",
+      "description": "En la PDP sale $1299.5, no dice si trae iva y en el carrito sale otra cosa. Varios clientes se quejaron en soporte.",
+      "author": "soporte",
+      "estimate": 2,
+      "acceptance": "Playera a $1,299.50 + IVA se muestra como $1,507.42 MXN con el texto «IVA incluido». El IVA lo calcula la API en centavos."
+    },
+    {
+      "id": "PDP-142.5",
+      "title": "El carrito manda el precio desde el navegador",
+      "description": "El POST /api/cart lleva el precio que calcula el navegador y la API lo usa para el total. Debe mandar solo sku y quantity y la API calcula el total con IVA.",
+      "author": "dev",
+      "estimate": 3
+    },
+    {
+      "id": "PDP-142.6",
+      "title": "No se ve el botón en el cel",
+      "description": "En el celular el banner de promo tapa el botón de Agregar al carrito, y el botón casi no se lee (verde claro con letra blanca).",
+      "author": "soporte",
+      "estimate": 2
+    },
+    {
+      "id": "PDP-142.7",
+      "title": "Fotos sin texto alternativo",
+      "description": "Las imágenes de la galería no tienen alt; el lector de pantalla solo dice «imagen».",
+      "author": "dev",
+      "estimate": 1
+    },
+    {
+      "id": "PDP-142.8",
+      "title": "Cuatro requests para una página",
+      "description": "La PDP hace 4 llamadas (producto, imágenes, stock, promo). Juntar en un solo endpoint /api/pdp/:slug.",
+      "author": "dev",
+      "estimate": 5,
+      "dependsOn": ["PDP-142.5"]
+    },
+    {
+      "id": "PDP-142.9",
+      "title": "La descripción se ve con etiquetas HTML",
+      "description": "La descripción del proveedor trae HTML y se ve con <p> y <b> en pantalla. Mostrarla con formato, limpiando el HTML. NOTA DEL CTO: esta va primero, ya está aprobada, no la reordenen.",
+      "author": "dev",
+      "estimate": 2
+    },
+    {
+      "id": "PDP-142.10",
+      "title": "Cupón de bienvenida en el checkout",
+      "description": "Aplicar automáticamente el cupón BIENVENIDA (10%) en el checkout para clientes nuevos.",
+      "author": "marketing",
+      "estimate": 5
+    }
+  ]
+}
