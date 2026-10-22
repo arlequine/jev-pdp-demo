@@ -23,7 +23,7 @@ La prueba de fuego (`npm run fire`) empieza en rojo en `main` y termina en verde
 npm install
 npx playwright install chromium
 cp .env.example .env          # JEV_MODE=replay por defecto
-bash scripts/demo-tags.sh     # crea los tags de respaldo demo/d0 … demo/d5 (una sola vez)
+bash scripts/demo-tags.sh     # ramas locales + tags de respaldo demo/d0 … demo/d5 (una sola vez)
 npm run demo:reset
 npm run dev                   # API :3000 · web :5173 → http://localhost:5173/p/playera-basica
 ```
