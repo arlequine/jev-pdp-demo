@@ -11,9 +11,13 @@ export default function ProductPage({ slug }: { slug: string }) {
   const [stock, setStock] = useState<any>(null);
   const [promo, setPromo] = useState<any>(null);
   const [added, setAdded] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/products/${slug}`).then((r) => r.json()).then(setProduct);
+    fetch(`/api/products/${slug}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then(setProduct)
+      .catch(() => setError("No pudimos cargar el producto. Intenta de nuevo."));
   }, [slug]);
   useEffect(() => {
     fetch(`/api/products/${slug}/images`).then((r) => r.json()).then(setImages);
@@ -35,7 +39,15 @@ export default function ProductPage({ slug }: { slug: string }) {
       .then(setAdded);
   }
 
-  if (!product) return null;
+  if (error) return <p role="alert" style={{ padding: 16, fontFamily: "Arial, sans-serif" }}>{error}</p>;
+  if (!product) {
+    return (
+      <div aria-busy="true" aria-label="Cargando producto" style={{ padding: 16 }}>
+        <div style={{ height: 300, background: "#EEE", borderRadius: 8 }} />
+        <div style={{ height: 24, width: "60%", background: "#EEE", marginTop: 16, borderRadius: 4 }} />
+      </div>
+    );
+  }
 
   return (
     <div style={{ fontFamily: "Arial, sans-serif" }}>
