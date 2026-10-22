@@ -75,7 +75,7 @@ export default function ProductPage({ slug }: { slug: string }) {
         <ProductDescription html={product.description} />
       </div>
       {promo ? (
-        <div style={{ background: "#FFD54F", color: "#1A1A1A", padding: 16, fontSize: 16 }}>
+        <div style={{ background: "#B00020", color: "#FFFFFF", padding: 16, fontSize: 16 }}>
           <b>{promo.text}</b>
           <div style={{ fontSize: 14, marginTop: 4 }}>Usa el código BIENVENIDA en tu primera compra.</div>
         </div>
