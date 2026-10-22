@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { PriceBlock } from "./components/PriceBlock";
 import { formatMxn } from "./money";
+import { ProductDescription } from "./components/ProductDescription";
 
 export default function ProductPage({ slug }: { slug: string }) {
   const [product, setProduct] = useState<any>(null);
@@ -71,7 +72,7 @@ export default function ProductPage({ slug }: { slug: string }) {
         </button>
         {added ? <div style={{ marginTop: 8 }}>Agregado. Total: {formatMxn(added.total)}</div> : null}
         <h2 style={{ fontSize: 16, marginTop: 24 }}>Descripción</h2>
-        <div style={{ fontSize: 14 }}>{product.description}</div>
+        <ProductDescription html={product.description} />
       </div>
       {promo ? (
         <div style={{ background: "#FFD54F", color: "#1A1A1A", padding: 16, fontSize: 16 }}>
