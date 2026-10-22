@@ -6,8 +6,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 git fetch -q origin main refactor/pdp-recorded refactor/pdp-trap 2>/dev/null || true
-main=$(git rev-parse origin/main 2>/dev/null || git rev-parse main)
-rec=$(git rev-parse origin/refactor/pdp-recorded 2>/dev/null || git rev-parse refactor/pdp-recorded)
+main=$(git rev-parse -q --verify origin/main || git rev-parse main)
+rec=$(git rev-parse -q --verify origin/refactor/pdp-recorded || git rev-parse refactor/pdp-recorded)
 
 git tag -f pdp-before "$(git rev-list --max-parents=0 "$main" | tail -1)" >/dev/null
 for t in d0 d1 d2 d4; do git tag -f "demo/$t" "$main" >/dev/null; done
