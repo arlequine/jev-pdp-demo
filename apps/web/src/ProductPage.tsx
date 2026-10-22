@@ -1,47 +1,26 @@
-// PDP legacy. «Convierte mal y nadie la quiere tocar.»
-// Todo vive en este archivo: cuatro requests, precio calculado en el navegador,
-// banner fijo que tapa el botón en el celular e imágenes sin texto alternativo.
-import { useEffect, useState } from "react";
+// Página de detalle de producto. Un request (usePdp) y precios que calcula la API.
+import { useState } from "react";
+import { usePdp } from "./usePdp";
 import { PriceBlock } from "./components/PriceBlock";
 import { formatMxn } from "./money";
 import { ProductDescription } from "./components/ProductDescription";
 
 export default function ProductPage({ slug }: { slug: string }) {
-  const [product, setProduct] = useState<any>(null);
-  const [images, setImages] = useState<any[]>([]);
-  const [stock, setStock] = useState<any>(null);
-  const [promo, setPromo] = useState<any>(null);
-  const [added, setAdded] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch(`/api/products/${slug}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then(setProduct)
-      .catch(() => setError("No pudimos cargar el producto. Intenta de nuevo."));
-  }, [slug]);
-  useEffect(() => {
-    fetch(`/api/products/${slug}/images`).then((r) => r.json()).then(setImages);
-  }, [slug]);
-  useEffect(() => {
-    fetch(`/api/products/${slug}/stock`).then((r) => r.json()).then(setStock);
-  }, [slug]);
-  useEffect(() => {
-    fetch(`/api/promo`).then((r) => r.json()).then(setPromo);
-  }, []);
+  const { data, error } = usePdp(slug);
+  const [added, setAdded] = useState<{ total: number } | null>(null);
 
   function addToCart() {
     fetch("/api/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sku: product.sku, quantity: 1 }),
+      body: JSON.stringify({ sku: data!.product.sku, quantity: 1 }),
     })
       .then((r) => r.json())
       .then(setAdded);
   }
 
   if (error) return <p role="alert" style={{ padding: 16, fontFamily: "Arial, sans-serif" }}>{error}</p>;
-  if (!product) {
+  if (!data) {
     return (
       <div aria-busy="true" aria-label="Cargando producto" style={{ padding: 16 }}>
         <div style={{ height: 300, background: "#EEE", borderRadius: 8 }} />
@@ -50,20 +29,21 @@ export default function ProductPage({ slug }: { slug: string }) {
     );
   }
 
+  const { product, images, stock, promo } = data;
   return (
     <div style={{ fontFamily: "Arial, sans-serif" }}>
       <div style={{ height: 56, background: "#222", color: "#fff", display: "flex", alignItems: "center", padding: "0 16px" }}>
         <b>TIENDA</b>
       </div>
       <div role="region" aria-label="Galería de fotos" tabIndex={0} style={{ display: "flex", overflowX: "auto" }}>
-        {images.map((img: { src: string; alt: string }) => (
+        {images.map((img) => (
           <img key={img.src} src={img.src} alt={img.alt} style={{ width: 390, height: 300, objectFit: "cover", flex: "none" }} />
         ))}
       </div>
       <div style={{ padding: 16 }}>
         <h1 style={{ fontSize: 22, margin: "8px 0" }}>{product.name}</h1>
         <PriceBlock totalCents={product.priceWithTaxCents} />
-        <div style={{ color: "#595959", fontSize: 13 }}>{stock ? `${stock.stock} disponibles` : ""}</div>
+        <div style={{ color: "#595959", fontSize: 13 }}>{`${stock} disponibles`}</div>
         <button
           onClick={addToCart}
           style={{ marginTop: 16, width: "100%", padding: 16, fontSize: 18, border: 0, borderRadius: 6, background: "#1B5E20", color: "#fff" }}

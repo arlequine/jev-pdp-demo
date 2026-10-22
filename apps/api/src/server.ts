@@ -3,7 +3,7 @@ import { z } from "zod";
 import { findBySku, findBySlug } from "./catalog.js";
 import { withIva } from "./money.js";
 
-// PDP legacy: cuatro endpoints para una sola página y un carrito que confía en el navegador.
+// API de la tienda. La PDP usa GET /api/pdp/:slug; los endpoints sueltos quedan por compatibilidad.
 export const app = express();
 app.use(express.json());
 
@@ -17,6 +17,18 @@ app.get("/api/products/:slug", (req, res) => {
     priceCents: p.priceCents,
     priceWithTaxCents: withIva(p.priceCents),
     description: p.description,
+  });
+});
+
+// Un solo request para la PDP: producto, imágenes, stock y promo.
+app.get("/api/pdp/:slug", (req, res) => {
+  const p = findBySlug(req.params.slug);
+  if (!p) return res.status(404).json({ error: "not_found" });
+  res.json({
+    product: { sku: p.sku, slug: p.slug, name: p.name, priceWithTaxCents: withIva(p.priceCents), description: p.description },
+    images: p.images,
+    stock: p.stock,
+    promo: { text: "Envío gratis en compras mayores a $999" },
   });
 });
 
