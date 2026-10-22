@@ -42,15 +42,15 @@ export default function ProductPage({ slug }: { slug: string }) {
       <div style={{ height: 56, background: "#222", color: "#fff", display: "flex", alignItems: "center", padding: "0 16px" }}>
         <b>TIENDA</b>
       </div>
-      <div style={{ display: "flex", overflowX: "auto" }}>
-        {images.map((src: string) => (
-          <img key={src} src={src} style={{ width: 390, height: 300, objectFit: "cover", flex: "none" }} />
+      <div role="region" aria-label="Galería de fotos" tabIndex={0} style={{ display: "flex", overflowX: "auto" }}>
+        {images.map((img: { src: string; alt: string }) => (
+          <img key={img.src} src={img.src} alt={img.alt} style={{ width: 390, height: 300, objectFit: "cover", flex: "none" }} />
         ))}
       </div>
       <div style={{ padding: 16 }}>
         <h1 style={{ fontSize: 22, margin: "8px 0" }}>{product.name}</h1>
         <PriceBlock totalCents={product.priceWithTaxCents} />
-        <div style={{ color: "#999", fontSize: 13 }}>{stock ? `${stock.stock} disponibles` : ""}</div>
+        <div style={{ color: "#595959", fontSize: 13 }}>{stock ? `${stock.stock} disponibles` : ""}</div>
         <button
           onClick={addToCart}
           style={{ marginTop: 16, width: "100%", padding: 16, fontSize: 18, border: 0, borderRadius: 6, background: "#1B5E20", color: "#fff" }}

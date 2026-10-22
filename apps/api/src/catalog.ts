@@ -5,7 +5,7 @@ export type Product = {
   name: string;
   priceCents: number; // sin IVA
   description: string; // viene del proveedor, puede traer HTML
-  images: string[];
+  images: { src: string; alt: string }[];
   stock: number;
 };
 
@@ -19,7 +19,10 @@ export const products: Product[] = [
     priceCents: 129950,
     description:
       "<p>Playera de <b>algodón peinado</b> 100%.</p><ul><li>Corte regular</li><li>Lavado en frío</li></ul>",
-    images: ["/img/playera-1.svg", "/img/playera-2.svg"],
+    images: [
+      { src: "/img/playera-1.svg", alt: "Playera básica azul, vista de frente" },
+      { src: "/img/playera-2.svg", alt: "Playera básica verde, vista de frente" },
+    ],
     stock: 42,
   },
 ];
