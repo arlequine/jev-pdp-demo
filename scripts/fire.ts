@@ -8,7 +8,7 @@ const only = onlyArg?.includes("=") ? onlyArg.split("=")[1] : onlyArg ? args[arg
 const headless = args.includes("--headless") || !!process.env.CI;
 
 const pw = ["playwright", "test", "e2e/fire.spec.ts", "--workers=1"];
-if (only) pw.push("--grep", only.split(",").map((c) => `^${c.trim()} `).join("|"));
+if (only) pw.push("--grep", only.split(",").map((c) => `${c.trim()} ·`).join("|"));
 if (!headless) pw.push("--headed");
 
 const r = spawnSync("npx", pw, { stdio: "inherit", env: { ...process.env, FIRE_LOG: "1" } });
