@@ -7,12 +7,13 @@
   "workspaces": [
     "apps/api",
     "apps/web",
-    "packages/jev-flow"
+    "packages/jev-flow",
+    "packages/jev-mcp"
   ],
   "scripts": {
     "dev": "concurrently -n api,web -c blue,green \"npm run dev -w apps/api\" \"npm run dev -w apps/web\"",
     "build": "npm run build -w apps/web",
-    "typecheck": "tsc -p apps/api && tsc -p apps/web && tsc -p packages/jev-flow",
+    "typecheck": "tsc -p apps/api && tsc -p apps/web && tsc -p packages/jev-flow && tsc -p packages/jev-mcp",
     "test": "vitest run",
     "fire": "tsx scripts/fire.ts",
     "prioritize": "tsx packages/jev-flow/src/prioritize/cli.ts",
@@ -21,7 +22,9 @@
     "rules:compare": "tsx packages/jev-flow/src/rules-compare/cli.ts",
     "cost": "tsx packages/jev-flow/src/cost/cli.ts",
     "recordings:simulate": "tsx scripts/simulate-recordings.ts",
-    "demo:reset": "bash scripts/demo-reset.sh"
+    "demo:reset": "bash scripts/demo-reset.sh",
+    "mcp": "tsx packages/jev-mcp/src/server.ts",
+    "mcp:check": "tsx packages/jev-mcp/src/check.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",

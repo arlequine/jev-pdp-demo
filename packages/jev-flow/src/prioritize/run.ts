@@ -1,6 +1,8 @@
+import fs from "node:fs";
 import rules from "../../../../jev.rules.js";
 import { askJev } from "../jev/client.js";
 import type { Answer } from "../jev/types.js";
+import { at } from "../paths.js";
 import { loadTicket, loadTruth, type Ticket } from "../ticket.js";
 import { rank, type Plan } from "./rank.js";
 import { evaluate, type CriterionResult } from "./truth.js";
@@ -53,4 +55,19 @@ export async function prioritize(ticketId: string): Promise<PrioritizeResult> {
     simulated: results.some((r) => r.simulated),
     snapshot: results[0]?.model ?? "",
   };
+}
+
+/** Guarda el orden en .jev/plan.json: Claude Code ejecuta las subtareas en este orden. */
+export function savePlan(r: PrioritizeResult) {
+  fs.mkdirSync(at(".jev"), { recursive: true });
+  const plan = {
+    ticket: r.ticket.id,
+    generatedAt: new Date().toISOString(),
+    jevSnapshot: r.snapshot,
+    note: "Orden calculado por packages/jev-flow/src/prioritize/rank.ts con las respuestas de Jev. Claude Code ejecuta en este orden.",
+    order: r.plan.order,
+    excluded: r.plan.excluded,
+  };
+  fs.writeFileSync(at(".jev/plan.json"), JSON.stringify(plan, null, 2));
+  return ".jev/plan.json";
 }

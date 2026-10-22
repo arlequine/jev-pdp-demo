@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "jev": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["tsx", "packages/jev-mcp/src/server.ts"],
+      "env": {}
+    }
+  }
+}

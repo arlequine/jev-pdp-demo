@@ -1,6 +1,6 @@
 # jev-pdp-demo
 
-Monorepo TypeScript: `apps/api` (Express + zod, puerto 3000), `apps/web` (React + Vite, puerto 5173) y `packages/jev-flow` (Jev: priorizar, revisar, comparar).
+Monorepo TypeScript: `apps/api` (Express + zod, puerto 3000), `apps/web` (React + Vite, puerto 5173), `packages/jev-flow` (Jev: priorizar, revisar, comparar) y `packages/jev-mcp` (servidor MCP `jev`).
 
 ## Reglas de negocio (no se negocian)
 
@@ -14,7 +14,8 @@ Monorepo TypeScript: `apps/api` (Express + zod, puerto 3000), `apps/web` (React 
 
 ## Cómo trabajar
 
-- Ejecuta las subtareas en el orden de `.jev/plan.json` (lo genera `npm run prioritize -- PDP-142`). No reordenes: el orden lo decide el código.
+- Para saber qué hacer, usa la tool `mcp__jev__prioritize_ticket` (o el resource `jev://plan`). Ejecuta las subtareas en ese orden; no reordenes: el orden lo decide el código.
+- Antes de dar una subtarea por terminada, usa `mcp__jev__review_range` con `main..HEAD`.
 - Una subtarea = un commit. Mensaje: `PDP-142.N: <qué cambia>`.
 - Si la subtarea tiene `acceptance` en `tickets/PDP-142.json`, **empieza por un test que lo compruebe** y que falle.
 - «Listo» = `npm run typecheck` y `npm test` en verde, y `npm run fire` para los checks que toque la subtarea.

@@ -1,9 +1,8 @@
-import fs from "node:fs";
 import { mode } from "../jev/client.js";
-import { appendJsonl, at } from "../paths.js";
+import { appendJsonl } from "../paths.js";
 import { usd } from "../prices.js";
 import { short } from "../ticket.js";
-import { prioritize } from "./run.js";
+import { prioritize, savePlan } from "./run.js";
 import { table, banner } from "../ui.js";
 
 const ticketId = process.argv[2] ?? "PDP-142";
@@ -35,22 +34,7 @@ console.log(
   `\n${r.requests} requests · ${r.inputTokens} tokens de entrada · salida gratis · ${usd(r.costUsd)} · ${r.ms} ms · modo ${mode()}`,
 );
 
-fs.mkdirSync(at(".jev"), { recursive: true });
-fs.writeFileSync(
-  at(".jev/plan.json"),
-  JSON.stringify(
-    {
-      ticket: ticketId,
-      generatedAt: new Date().toISOString(),
-      jevSnapshot: r.snapshot,
-      note: "Orden calculado por packages/jev-flow/src/prioritize/rank.ts con las respuestas de Jev. Claude Code ejecuta en este orden.",
-      order: r.plan.order,
-      excluded: r.plan.excluded,
-    },
-    null,
-    2,
-  ),
-);
+savePlan(r);
 console.log("Plan escrito en .jev/plan.json");
 
 appendJsonl("metrics/prioritize-runs.jsonl", {
