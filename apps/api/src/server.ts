@@ -1,5 +1,6 @@
 import express from "express";
 import { findBySku, findBySlug } from "./catalog.js";
+import { withIva } from "./money.js";
 
 // PDP legacy: cuatro endpoints para una sola página y un carrito que confía en el navegador.
 export const app = express();
@@ -8,7 +9,14 @@ app.use(express.json());
 app.get("/api/products/:slug", (req, res) => {
   const p = findBySlug(req.params.slug);
   if (!p) return res.status(404).json({ error: "not_found" });
-  res.json({ sku: p.sku, slug: p.slug, name: p.name, priceCents: p.priceCents, description: p.description });
+  res.json({
+    sku: p.sku,
+    slug: p.slug,
+    name: p.name,
+    priceCents: p.priceCents,
+    priceWithTaxCents: withIva(p.priceCents),
+    description: p.description,
+  });
 });
 
 app.get("/api/products/:slug/images", (req, res) => {

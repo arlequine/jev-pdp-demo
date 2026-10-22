@@ -2,6 +2,7 @@
 // Todo vive en este archivo: cuatro requests, precio calculado en el navegador,
 // banner fijo que tapa el botón en el celular e imágenes sin texto alternativo.
 import { useEffect, useState } from "react";
+import { PriceBlock } from "./components/PriceBlock";
 
 export default function ProductPage({ slug }: { slug: string }) {
   const [product, setProduct] = useState<any>(null);
@@ -47,7 +48,7 @@ export default function ProductPage({ slug }: { slug: string }) {
       </div>
       <div style={{ padding: 16 }}>
         <h1 style={{ fontSize: 22, margin: "8px 0" }}>{product.name}</h1>
-        <div style={{ fontSize: 26, fontWeight: "bold", margin: "8px 0" }}>${product.priceCents / 100}</div>
+        <PriceBlock totalCents={product.priceWithTaxCents} />
         <div style={{ color: "#999", fontSize: 13 }}>{stock ? `${stock.stock} disponibles` : ""}</div>
         <button
           onClick={addToCart}
