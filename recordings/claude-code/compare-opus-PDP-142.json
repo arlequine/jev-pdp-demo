@@ -1,0 +1,13 @@
+{
+  "recordedAt": "2026-10-22T21:37:06.674Z",
+  "simulated": true,
+  "duration_ms": 14200,
+  "usage": {
+    "input_tokens": 3100,
+    "output_tokens": 980,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0
+  },
+  "total_cost_usd": 0.032,
+  "result": "{\"order\":[\"PDP-142.4\",\"PDP-142.6\",\"PDP-142.5\",\"PDP-142.3\",\"PDP-142.9\",\"PDP-142.7\",\"PDP-142.2\",\"PDP-142.8\",\"PDP-142.1\",\"PDP-142.10\"],\"excluded\":[],\"why\":\"Ejemplo simulado: el precio y el botón primero; el banner urgente y la nota del CTO suben por la presión del ticket.\"}"
+}

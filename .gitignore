@@ -6,3 +6,6 @@ playwright-report/
 .jev/cache/
 *.log
 .DS_Store
+metrics/*.jsonl
+.jev/review-comment.md
+.jev/plan.json
