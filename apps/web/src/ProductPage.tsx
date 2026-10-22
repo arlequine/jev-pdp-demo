@@ -3,6 +3,7 @@
 // banner fijo que tapa el botón en el celular e imágenes sin texto alternativo.
 import { useEffect, useState } from "react";
 import { PriceBlock } from "./components/PriceBlock";
+import { formatMxn } from "./money";
 
 export default function ProductPage({ slug }: { slug: string }) {
   const [product, setProduct] = useState<any>(null);
@@ -28,7 +29,7 @@ export default function ProductPage({ slug }: { slug: string }) {
     fetch("/api/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sku: product.sku, quantity: 1, price: product.priceCents / 100 }),
+      body: JSON.stringify({ sku: product.sku, quantity: 1 }),
     })
       .then((r) => r.json())
       .then(setAdded);
@@ -56,7 +57,7 @@ export default function ProductPage({ slug }: { slug: string }) {
         >
           Agregar al carrito
         </button>
-        {added ? <div style={{ marginTop: 8 }}>Agregado. Total: {added.total}</div> : null}
+        {added ? <div style={{ marginTop: 8 }}>Agregado. Total: {formatMxn(added.total)}</div> : null}
         <h2 style={{ fontSize: 16, marginTop: 24 }}>Descripción</h2>
         <div style={{ fontSize: 14 }}>{product.description}</div>
         <div style={{ height: 320 }} />

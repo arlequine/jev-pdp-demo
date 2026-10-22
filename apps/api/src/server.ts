@@ -1,4 +1,5 @@
 import express from "express";
+import { z } from "zod";
 import { findBySku, findBySlug } from "./catalog.js";
 import { withIva } from "./money.js";
 
@@ -35,13 +36,16 @@ app.get("/api/promo", (_req, res) => {
   res.json({ text: "Envío gratis en compras mayores a $999" });
 });
 
-// TODO: el precio viene del cliente. «Funciona», pero nadie lo ha revisado.
+// El carrito solo recibe { sku, quantity }. El total (con IVA) lo calcula la API.
+const CartRequest = z.object({ sku: z.string().min(1), quantity: z.number().int().min(1).max(10) }).strict();
+
 app.post("/api/cart", (req, res) => {
-  const { sku, quantity, price } = req.body ?? {};
+  const parsed = CartRequest.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "invalid_request", issues: parsed.error.issues });
+  const { sku, quantity } = parsed.data;
   const p = findBySku(sku);
   if (!p) return res.status(404).json({ error: "not_found" });
-  const total = Math.round(Number(price) * 100) * Number(quantity ?? 1);
-  res.json({ sku, quantity, total });
+  res.json({ sku, quantity, total: withIva(p.priceCents) * quantity });
 });
 
 const port = Number(process.env.API_PORT ?? 3000);
