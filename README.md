@@ -43,6 +43,17 @@ npm run dev                   # API :3000 · web :5173 → http://localhost:5173
 
 Usa el mismo `JEV_MODE` y las mismas grabaciones que los scripts. Para verificarlo sin abrir Claude Code: `npm run mcp:check`. Dentro de Claude Code: `/mcp`.
 
+## Skill de TypeSafe para Claude Code
+
+La [agent skill oficial](https://docs.typesafe.ai/agent-skill) le enseña al agente a escribir integraciones con Jev. El repo la declara en `.claude/settings.json`; instálala una vez:
+
+```bash
+claude plugin marketplace add typesafe-ai/skills
+claude plugin install typesafe@typesafe-ai
+```
+
+Se invoca con `/typesafe:typesafe-ai`. Prompts para este repo y cómo encaja con el MCP: [`docs/typesafe-skill.md`](docs/typesafe-skill.md).
+
 ## La demo, paso a paso
 
 | Paso | Comando | Qué esperar | Respaldo |
@@ -55,7 +66,7 @@ Usa el mismo `JEV_MODE` y las mismas grabaciones que los scripts. Para verificar
 | 4b · PR limpio | `npm run review -- main..refactor/pdp-recorded` | APROBAR, sin comentario | `demo/d4` |
 | 5 · Prueba en verde | `git switch refactor/pdp-recorded && npm run fire` | F1–F4 en verde | `demo/d5` |
 
-Extras: `npm run rules:compare` (la misma revisión sin y con reglas) y `npm run cost` (resumen para la diapositiva de resultados).
+Extras: en la sección de reglas, la skill de TypeSafe propone la siguiente regla (prompt 2 de `docs/typesafe-skill.md`). `npm run rules:compare` (la misma revisión sin y con reglas) y `npm run cost` (resumen para la diapositiva de resultados).
 
 ## Modo de Jev
 
@@ -69,7 +80,7 @@ Extras: `npm run rules:compare` (la misma revisión sin y con reglas) y `npm run
 > **Las grabaciones incluidas son SIMULADAS** (`"simulated": true`): no son respuestas reales de Jev ni de Opus, y la terminal lo avisa en amarillo. Antes de presentar, grábalas de verdad:
 >
 > ```bash
-> # .env con JEV_API_KEY y JEV_MODE=record
+> # .env con TYPESAFE_API_KEY y JEV_MODE=record (prueba la key con: npm run jev:models)
 > npm run prioritize -- PDP-142
 > npm run compare -- PDP-142
 > npm run rules:compare
@@ -88,6 +99,7 @@ Extras: `npm run rules:compare` (la misma revisión sin y con reglas) y `npm run
 | `packages/jev-flow/src/jev/client.ts` | Cliente de Jev con live, record y replay |
 | `packages/jev-mcp/` | Servidor MCP `jev` (`server.ts`) y su verificación (`check.ts`) |
 | `.mcp.json` | Registro del servidor MCP para todo el equipo |
+| `docs/typesafe-skill.md` | La agent skill de TypeSafe: instalación y prompts para este repo |
 | `tickets/PDP-142.*` | El ticket, sus criterios de éxito (`truth.json`) y la versión para leer en pantalla |
 | `e2e/fire.spec.ts` | La prueba de fuego en móvil 390×844 |
 | `CLAUDE.md`, `.claude/` | Reglas de negocio, permisos del MCP, hooks (merge y costo de sesión) y skills (`pdp-refactor`, `compare-models`) |
@@ -107,6 +119,6 @@ Extras: `npm run rules:compare` (la misma revisión sin y con reglas) y `npm run
 ## Supuestos
 
 - **Formato de reglas:** Jev no tiene un archivo oficial de reglas; su API recibe `{ model, state, questions }`. `jev.rules.ts` y sus helpers son una convención de este repo.
-- **Endpoint nativo:** `POST {JEV_BASE_URL}/v1/systemone` con `Authorization: Bearer`, igual que el SDK de TypeSafe. Confírmalo en docs.typesafe.ai.
+- **API de Jev:** `POST https://api.typesafe.ai/v1/systemone` con `Authorization: Bearer $TYPESAFE_API_KEY` ([docs](https://docs.typesafe.ai/api/system-one)). `npm run jev:models` prueba la key sin gastar tokens.
 - **Precios** en `packages/jev-flow/src/prices.ts` (Jev 0.042/0, Sonnet 2/10, Opus 4/20 USD por millón). Confírmalos antes de presentar.
 - Con un ticket y 5 fixtures, los aciertos son ilustrativos, no un benchmark.

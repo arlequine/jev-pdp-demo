@@ -7,7 +7,7 @@ import { at, ROOT } from "../paths.js";
 
 export type Check = { name: string; ok: boolean; detail?: string };
 
-const SECRET = /(sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|JEV_API_KEY\s*=\s*['"]?\w{8,})/;
+const SECRET = /(sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|(?:TYPESAFE|JEV)_API_KEY\s*=\s*['"]?\w{8,})/;
 
 export function secrets(units: Unit[]): Check {
   for (const u of units) {

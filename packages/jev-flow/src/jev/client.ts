@@ -59,11 +59,18 @@ export async function askJev(state: unknown, questions: Questions, label: string
   return { ...response, durationMs, source: "live", simulated: m === "simulate", costUsd: jevCost(response.usage.input_tokens) };
 }
 
+/** Mismas variables que los SDKs de TypeSafe (TYPESAFE_API_KEY, TYPESAFE_BASE_URL). JEV_* queda por compatibilidad. */
+export function apiConfig() {
+  const key = process.env.TYPESAFE_API_KEY || process.env.JEV_API_KEY;
+  if (!key) throw new Error("Falta TYPESAFE_API_KEY en .env (o usa JEV_MODE=replay). Créala en https://console.typesafe.ai/keys");
+  const base = (process.env.TYPESAFE_BASE_URL || process.env.JEV_BASE_URL || "https://api.typesafe.ai").replace(/\/$/, "");
+  return { key, base };
+}
+
+// POST {base}/v1/systemone · Authorization: Bearer · body { model, state, questions }
+// Respuesta { model, answers, usage: { input_tokens, output_tokens } }. Ver docs.typesafe.ai/api/system-one
 async function callApi(req: JevRequest): Promise<JevResponse> {
-  const key = process.env.JEV_API_KEY;
-  if (!key) throw new Error("Falta JEV_API_KEY en .env (o usa JEV_MODE=replay).");
-  // SUPUESTO: la API nativa expone POST {base}/v1/systemone, igual que el SDK de TypeSafe.
-  const base = (process.env.JEV_BASE_URL || "https://api.typesafe.ai").replace(/\/$/, "");
+  const { key, base } = apiConfig();
   for (let attempt = 0; attempt < 3; attempt++) {
     const res = await fetch(`${base}/v1/systemone`, {
       method: "POST",

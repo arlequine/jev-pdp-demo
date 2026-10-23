@@ -1,5 +1,5 @@
 // Regenera las grabaciones de EJEMPLO (simuladas) para que la demo corra en replay sin API key.
-// Para grabar respuestas reales: JEV_MODE=record con JEV_API_KEY en .env y corre los mismos comandos.
+// Para grabar respuestas reales: JEV_MODE=record con TYPESAFE_API_KEY en .env y corre los mismos comandos.
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
