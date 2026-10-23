@@ -29,7 +29,7 @@ if (!range) process.exit(0);
 const r = spawnSync("npx", ["tsx", "packages/jev-flow/src/review/cli.ts", range], {
   cwd: root,
   encoding: "utf8",
-  env: { ...process.env, FORCE_COLOR: "0" },
+  env: { ...process.env, FORCE_COLOR: "0", JEV_VIA: "hook" },
 });
 if (r.status === 0) process.exit(0);
 

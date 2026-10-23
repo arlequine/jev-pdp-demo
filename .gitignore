@@ -9,3 +9,5 @@ playwright-report/
 metrics/*.jsonl
 .jev/review-comment.md
 .jev/plan.json
+.jev/session.json
+.jev/reviews/

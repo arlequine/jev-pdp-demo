@@ -9,7 +9,9 @@ import rules from "../../../jev.rules.js";
 import { mode } from "../../jev-flow/src/jev/client.js";
 import { appendJsonl, at } from "../../jev-flow/src/paths.js";
 import { prioritize, savePlan } from "../../jev-flow/src/prioritize/run.js";
-import { humanComment, review } from "../../jev-flow/src/review/review.js";
+import { humanComment, review, saveReviewReport } from "../../jev-flow/src/review/review.js";
+import { logUsage, STEPS } from "../../jev-flow/src/ledger.js";
+import { short } from "../../jev-flow/src/ticket.js";
 
 console.log = (...args: unknown[]) => console.error(...args); // protege el canal stdio
 
@@ -42,6 +44,21 @@ server.registerTool(
         total: r.criteria.length,
         simulated: r.simulated,
         mode: mode(),
+      });
+      logUsage({
+        step: STEPS.refactor,
+        label: `Claude → mcp__jev__prioritize_ticket(${ticketId})`,
+        via: "mcp",
+        engine: "jev",
+        model: r.snapshot || "jev",
+        requests: r.requests,
+        inputTokens: r.inputTokens,
+        outputTokens: 0,
+        costUsd: r.costUsd,
+        ms: r.ms,
+        mode: mode(),
+        simulated: r.simulated,
+        result: `primero ${short(r.plan.order[0]?.id ?? "")}`,
       });
       return json({
         ticket: ticketId,
@@ -98,8 +115,25 @@ server.registerTool(
         snapshot: r.snapshot,
         mode: mode(),
       });
+      const report = saveReviewReport(r, "mcp");
+      logUsage({
+        step: STEPS.refactor,
+        label: `Claude → mcp__jev__review_range(${range})`,
+        via: "mcp",
+        engine: "jev",
+        model: r.snapshot || "jev",
+        requests: r.requests,
+        inputTokens: r.inputTokens,
+        outputTokens: 0,
+        costUsd: r.costUsd,
+        ms: r.ms,
+        mode: mode(),
+        simulated: r.simulated,
+        result: `${r.verdict} · ${r.units.length} archivos`,
+      });
       return json({
         range,
+        report,
         verdict: r.verdict,
         checks: r.checks,
         flagged: r.units.filter((u) => u.verdict !== "APROBAR").map((u) => ({ file: u.file, commit: u.subject, verdict: u.verdict, reasons: u.reasons })),

@@ -1,4 +1,6 @@
+import fs from "node:fs";
 import rules from "../../../../jev.rules.js";
+import { at } from "../paths.js";
 import { reviewUnits, type Unit } from "../git.js";
 import { askJev } from "../jev/client.js";
 import type { NoulAnswer, Questions } from "../jev/types.js";
@@ -112,4 +114,32 @@ export function humanComment(r: ReviewResult) {
   }
   lines.push("", `Umbrales: bloquear ≥ ${rules.thresholds.block} · revisar ≥ ${rules.thresholds.review} (jev.rules.ts). Snapshot de Jev: ${r.snapshot || "n/a"}.`);
   return lines.join("\n");
+}
+
+/** Guarda el detalle completo de una revisión: auditable después de la demo. */
+export function saveReviewReport(r: ReviewResult, via: string) {
+  const dir = at(".jev/reviews");
+  fs.mkdirSync(dir, { recursive: true });
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..+/, "");
+  const file = `${dir}/${stamp}-${r.range.replace(/[^\w.-]+/g, "_")}.json`;
+  fs.writeFileSync(
+    file,
+    JSON.stringify(
+      {
+        at: new Date().toISOString(),
+        via,
+        range: r.range,
+        verdict: r.verdict,
+        thresholds: rules.thresholds,
+        checks: r.checks,
+        units: r.units.map((u) => ({ commit: u.subject, sha: u.sha, file: u.file, verdict: u.verdict, risk: u.risk, reasons: u.reasons, probabilities: u.probabilities })),
+        usage: { requests: r.requests, inputTokens: r.inputTokens, costUsd: r.costUsd, ms: r.ms },
+        snapshot: r.snapshot,
+        simulated: r.simulated,
+      },
+      null,
+      2,
+    ),
+  );
+  return file.replace(at("") + "/", "");
 }

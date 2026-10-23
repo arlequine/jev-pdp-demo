@@ -25,7 +25,8 @@
     "demo:reset": "bash scripts/demo-reset.sh",
     "mcp": "tsx packages/jev-mcp/src/server.ts",
     "mcp:check": "tsx packages/jev-mcp/src/check.ts",
-    "jev:models": "tsx scripts/jev-models.ts"
+    "jev:models": "tsx scripts/jev-models.ts",
+    "dashboard": "tsx scripts/dashboard.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",

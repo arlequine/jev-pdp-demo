@@ -1,38 +1,30 @@
-// Resumen de costos para la diapositiva de resultados. Lee metrics/*.jsonl.
-import fs from "node:fs";
-import { at, readJsonl } from "../paths.js";
+// npm run cost — el mismo resumen del dashboard, en la terminal. Lee metrics/ledger.jsonl.
+//   npm run cost -- --all   todas las sesiones
+import { readLedger } from "../ledger.js";
 import { usd } from "../prices.js";
 import { banner, table } from "../ui.js";
 
-const filter = process.argv[2]; // p. ej. «refactor» para ver solo la sesión de Claude Code
-const last = <T>(xs: T[]) => xs[xs.length - 1];
-const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : undefined);
+const all = process.argv.includes("--all");
+const { session, entries } = readLedger({ all });
+const sum = (f: (e: (typeof entries)[number]) => number, xs = entries) => xs.reduce((n, e) => n + (f(e) || 0), 0);
 
-const config = fs.existsSync(at("metrics/config.json")) ? JSON.parse(fs.readFileSync(at("metrics/config.json"), "utf8")) : {};
-const prsPerMonth: number = config.prsPerMonth ?? 400;
-
-const compare = last(readJsonl("metrics/compare-runs.jsonl"));
-const reviews = readJsonl("metrics/review-runs.jsonl").filter((r) => r.units > 0);
-const sessions = readJsonl("metrics/claude-code.jsonl");
-const perPR = avg(reviews.map((r) => r.costUsd));
-
-const sessionRows = sessions
-  .filter((s) => !filter || (s.label ?? "").includes(filter) || filter === "refactor")
-  .slice(-3)
-  .map((s) => [`Claude Code · ${s.label ?? s.sessionId?.slice(0, 8)}`, "—", `${s.model} ${usd(s.costUsd)} · con Opus ${usd(s.costIfOpus)}`]);
-
-banner("Cuánto costó cada decisión", !!(compare?.jev?.simulated || reviews.some((r) => r.simulated)));
+banner(`Costo de la demo · ${all ? "todas las sesiones" : `sesión ${session.id}`}`, entries.some((e) => e.simulated));
+if (!entries.length) {
+  console.log("Sin registros todavía. Corre un comando de la demo (o npm run cost -- --all).");
+  process.exit(0);
+}
 table(
-  ["Paso", "Con Jev", "Alternativa"],
-  [
-    [
-      "Priorizar el ticket",
-      compare ? `${usd(compare.jev.costUsd)} · ${(compare.jev.ms / 1000).toFixed(2)} s · ${compare.jev.passed}/${compare.total}` : "sin dato",
-      compare ? `Opus ${usd(compare.opus.costUsd)} · ${(compare.opus.ms / 1000).toFixed(2)} s · ${compare.opus.passed}/${compare.total}` : "sin dato",
-    ],
-    ...(sessionRows.length ? sessionRows : [["Refactor (Claude Code)", "—", "sin dato: corre una sesión con el hook Stop activo"]]),
-    ["Revisar un PR", perPR != null ? usd(perPR) : "sin dato", "—"],
-    [`${prsPerMonth} PRs al mes (proyección)`, perPR != null ? usd(perPR * prsPerMonth) : "sin dato", "—"],
-  ],
+  ["Hora", "Paso", "Qué", "Motor", "Tokens", "Costo"],
+  entries.map((e) => [
+    new Date(e.at).toLocaleTimeString("es-MX"),
+    e.step,
+    e.label.slice(0, 56),
+    `${e.engine}${e.engine !== "local" ? ` · ${e.model}` : ""}`,
+    String(e.inputTokens + e.outputTokens + (e.cacheReadTokens ?? 0) + (e.cacheWriteTokens ?? 0)),
+    usd(e.costUsd),
+  ]),
 );
-console.log(`\nFuentes: metrics/compare-runs.jsonl, metrics/review-runs.jsonl, metrics/claude-code.jsonl. PRs al mes: metrics/config.json.`);
+const jev = entries.filter((e) => e.engine === "jev");
+const claude = entries.filter((e) => e.engine === "claude");
+console.log(`\nTotal ${usd(sum((e) => e.costUsd))} · Jev ${usd(sum((e) => e.costUsd, jev))} (${jev.length}) · Claude ${usd(sum((e) => e.costUsd, claude))} (${claude.length})`);
+console.log("Dashboard: npm run dashboard → http://localhost:4400");

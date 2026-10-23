@@ -12,5 +12,10 @@ git switch -q main
 git branch -D refactor/pdp >/dev/null 2>&1 && echo "Borré la rama refactor/pdp del ensayo." || true
 rm -f .jev/review-comment.md
 
+# Nueva sesión de demo: el dashboard muestra solo lo que pase desde aquí.
+mkdir -p .jev
+node -e 'const t=new Date().toISOString();require("fs").writeFileSync(".jev/session.json",JSON.stringify({id:t.replace(/[-:T]/g,"").slice(0,14),startedAt:t},null,2))'
+echo "Nueva sesión de demo: $(node -p 'require("./.jev/session.json").id') (npm run dashboard la muestra)"
+
 echo "Listo: main, prueba de fuego en rojo. Siguiente: npm run dev"
-echo "Modo de Jev: ${JEV_MODE:-replay} (cámbialo con export JEV_MODE=live|record|replay)"
+echo "Modo de Jev: ${JEV_MODE:-auto} (auto = grabación si existe, si no Jev en vivo)"

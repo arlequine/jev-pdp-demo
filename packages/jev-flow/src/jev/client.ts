@@ -9,12 +9,15 @@ import type { JevRequest, JevResponse, JevResult, Questions } from "./types.js";
 loadEnv();
 
 // JEV_MODE:
+//   auto     (default) usa la grabación si existe; si no, llama a Jev y la guarda. Ideal para la demo:
+//            lo ensayado sale de replay y lo nuevo (el commit que Sonnet hace en vivo) se pregunta en vivo.
 //   live     llama a la API nativa de Jev
 //   record   llama y guarda la respuesta en recordings/jev/
 //   replay   solo lee grabaciones (la demo corre sin red)
 //   simulate genera respuestas de ejemplo y las guarda marcadas como simuladas
-export type Mode = "live" | "record" | "replay" | "simulate";
-export const mode = (): Mode => (process.env.JEV_MODE as Mode) || "replay";
+export type Mode = "auto" | "live" | "record" | "replay" | "simulate";
+export const mode = (): Mode => (process.env.JEV_MODE as Mode) || "auto";
+const hasKey = () => !!(process.env.TYPESAFE_API_KEY || process.env.JEV_API_KEY);
 // Alias por defecto: jev-latest (sigue a la versión más nueva). Para fijar una versión: JEV_MODEL=<nombre de /v1/models>.
 export const model = () => process.env.JEV_MODEL || "jev-latest";
 export const isAlias = (m: string) => /-(latest|preview)$/.test(m);
@@ -35,8 +38,8 @@ export async function askJev(state: unknown, questions: Questions, label: string
   const key = requestKey(req);
   const m = mode();
 
-  if (m === "replay") {
-    const file = recordingPath(key);
+  const file = recordingPath(key);
+  if (m === "replay" || (m === "auto" && fs.existsSync(file))) {
     if (!fs.existsSync(file)) {
       throw new Error(
         `No hay grabación para «${label}» (${key}). El repo no está como en el ensayo: ` +
@@ -47,11 +50,17 @@ export async function askJev(state: unknown, questions: Questions, label: string
     return { ...rec.response, durationMs: rec.durationMs, source: "replay", simulated: !!rec.simulated, costUsd: jevCost(rec.response.usage.input_tokens) };
   }
 
+  if (m === "auto" && !hasKey()) {
+    throw new Error(
+      `No hay grabación para «${label}» y no hay TYPESAFE_API_KEY para preguntarle a Jev en vivo. ` +
+        `Pon la key en .env, o usa una rama ensayada (refactor/pdp-recorded).`,
+    );
+  }
   const started = performance.now();
   const response = m === "simulate" ? simulate(req, label) : await callApi(req);
   const durationMs = Math.round(m === "simulate" ? 90 + Math.random() * 120 : performance.now() - started);
 
-  if (m === "record" || m === "simulate") {
+  if (m === "record" || m === "simulate" || m === "auto") {
     fs.mkdirSync(DIR, { recursive: true });
     fs.writeFileSync(
       recordingPath(key),

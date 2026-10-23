@@ -7,6 +7,7 @@ import { appendJsonl, at } from "../paths.js";
 import { usd } from "../prices.js";
 import { decide, type Verdict } from "../review/review.js";
 import { banner, table } from "../ui.js";
+import { logUsage, STEPS } from "../ledger.js";
 
 type Fixture = { name: string; subtask: string; file: string; diff: string; expected: Verdict };
 const fixtures: Fixture[] = JSON.parse(fs.readFileSync(at("fixtures/reviews/fixtures.json"), "utf8"));
@@ -61,3 +62,19 @@ table(
 console.log(`\nCon reglas se manda un poco más de entrada (más preguntas); la salida sigue siendo gratis. Modo ${mode()}.`);
 
 appendJsonl("metrics/rules-compare-runs.jsonl", { ...totals, fixtures: fixtures.length, simulated, mode: mode() });
+
+for (const [k, label] of [["broad", "sin reglas"], ["rules", "con reglas"]] as const) {
+  logUsage({
+    step: STEPS.extra,
+    label: `npm run rules:compare (${label})`,
+    engine: "jev",
+    model: "jev",
+    requests: fixtures.length,
+    inputTokens: totals[k].tokens,
+    outputTokens: 0,
+    costUsd: totals[k].cost,
+    mode: mode(),
+    simulated,
+    result: `${totals[k].ok}/${fixtures.length} veredictos correctos`,
+  });
+}

@@ -7,6 +7,7 @@ import { prioritize } from "../prioritize/run.js";
 import { loadTruth, short } from "../ticket.js";
 import { banner, table } from "../ui.js";
 import { askOpus } from "./opus.js";
+import { logUsage, STEPS } from "../ledger.js";
 
 const ticketId = process.argv[2] ?? "PDP-142";
 const jev = await prioritize(ticketId);
@@ -38,4 +39,35 @@ appendJsonl("metrics/compare-runs.jsonl", {
   jev: { costUsd: jev.costUsd, ms: jev.ms, inputTokens: jev.inputTokens, passed: jev.criteria.filter((c) => c.passed).length, simulated: jev.simulated },
   opus: { costUsd: opus.costList, costReported: opus.costReported, ms: opus.ms, usage: opus.usage, passed: opusCriteria.filter((c) => c.passed).length, simulated: opus.simulated },
   total: jev.criteria.length,
+});
+
+logUsage({
+  step: STEPS.extra,
+  label: `npm run compare -- ${ticketId} (Jev)`,
+  engine: "jev",
+  model: jev.snapshot || "jev",
+  requests: jev.requests,
+  inputTokens: jev.inputTokens,
+  outputTokens: 0,
+  costUsd: jev.costUsd,
+  ms: jev.ms,
+  mode: mode(),
+  simulated: jev.simulated,
+  result: `${jev.criteria.filter((c) => c.passed).length}/${jev.criteria.length} criterios`,
+});
+logUsage({
+  step: STEPS.extra,
+  label: `npm run compare -- ${ticketId} (Opus, prompt y parseo)`,
+  engine: "claude",
+  model: "opus",
+  requests: 1,
+  inputTokens: opus.usage.input_tokens ?? 0,
+  outputTokens: opus.usage.output_tokens ?? 0,
+  cacheReadTokens: opus.usage.cache_read_input_tokens ?? 0,
+  cacheWriteTokens: opus.usage.cache_creation_input_tokens ?? 0,
+  costUsd: opus.costList,
+  ms: opus.ms,
+  mode: mode(),
+  simulated: opus.simulated,
+  result: `${opusCriteria.filter((c) => c.passed).length}/${opusCriteria.length} criterios`,
 });

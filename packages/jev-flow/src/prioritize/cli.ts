@@ -4,6 +4,7 @@ import { usd } from "../prices.js";
 import { short } from "../ticket.js";
 import { prioritize, savePlan } from "./run.js";
 import { table, banner } from "../ui.js";
+import { logUsage, STEPS } from "../ledger.js";
 
 const ticketId = process.argv[2] ?? "PDP-142";
 const r = await prioritize(ticketId);
@@ -47,4 +48,19 @@ appendJsonl("metrics/prioritize-runs.jsonl", {
   total: r.criteria.length,
   simulated: r.simulated,
   mode: mode(),
+});
+
+logUsage({
+  step: STEPS.prioritize,
+  label: `npm run prioritize -- ${ticketId}`,
+  engine: "jev",
+  model: r.snapshot || "jev",
+  requests: r.requests,
+  inputTokens: r.inputTokens,
+  outputTokens: 0,
+  costUsd: r.costUsd,
+  ms: r.ms,
+  mode: mode(),
+  simulated: r.simulated,
+  result: `${r.criteria.filter((c) => c.passed).length}/${r.criteria.length} criterios · primero ${short(r.plan.order[0]?.id ?? "")}`,
 });

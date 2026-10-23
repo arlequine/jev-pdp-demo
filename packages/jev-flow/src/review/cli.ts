@@ -3,7 +3,8 @@ import { mode } from "../jev/client.js";
 import { appendJsonl, at } from "../paths.js";
 import { usd } from "../prices.js";
 import { banner, table, VERDICT_COLOR } from "../ui.js";
-import { humanComment, review } from "./review.js";
+import { logUsage, STEPS } from "../ledger.js";
+import { humanComment, review, saveReviewReport } from "./review.js";
 
 const args = process.argv.slice(2);
 const range = args.find((a) => !a.startsWith("--")) ?? "main..HEAD";
@@ -43,6 +44,23 @@ appendJsonl("metrics/review-runs.jsonl", {
   simulated: r.simulated,
   snapshot: r.snapshot,
   mode: mode(),
+});
+
+const report = saveReviewReport(r, process.env.JEV_VIA ?? "cli");
+console.log(`Reporte completo: ${report}`);
+logUsage({
+  step: STEPS.review,
+  label: `npm run review -- ${range}`,
+  engine: "jev",
+  model: r.snapshot || "jev",
+  requests: r.requests,
+  inputTokens: r.inputTokens,
+  outputTokens: 0,
+  costUsd: r.costUsd,
+  ms: r.ms,
+  mode: mode(),
+  simulated: r.simulated,
+  result: `${r.verdict} · ${r.units.length} archivos`,
 });
 
 process.exit(r.verdict === "APROBAR" ? 0 : r.verdict === "REVISAR" ? 1 : 2);
