@@ -2,29 +2,29 @@
 
 Demo de la charla para el equipo de desarrollo: **Jev decide, Claude genera y el código pone las reglas.**
 
-Un e-commerce en local (API + web) con una página de producto que «convierte mal y nadie la quiere tocar». Sobre el ticket `PDP-142`:
+Un e-commerce en local (API + web) con una página de producto que «convierte mal y nadie la quiere tocar». La demo sigue un ticket de punta a punta, y cada comando y cada prompt deja su costo en `metrics/ledger.jsonl`:
 
-1. **Priorizar** con Jev: 8 preguntas cerradas por subtarea; el orden lo calcula `rank.ts`.
-2. **Refactor** con Claude Code y Sonnet, siguiendo el plan y las reglas de `CLAUDE.md`.
-3. **Revisar el PR** con Jev: deterministas primero, luego preguntas cerradas y umbrales en código. Un hook bloquea el merge si no se aprueba.
-4. **Comparar** Opus contra Jev al priorizar: costo, tiempo y aciertos.
+1. **Ticket:** `PDP-142` y la prueba de fuego en rojo.
+2. **Priorizar** con Jev: preguntas cerradas por subtarea; el orden lo calcula `rank.ts`.
+3. **Refactor con Sonnet** en Claude Code: programa la subtarea y llama a Jev por MCP para el plan y la revisión.
+4. **Revisión del PR en local** con Jev: deterministas primero, luego preguntas cerradas y umbrales en código.
+5. **Resultados:** la prueba de fuego en verde y la página arreglada.
+6. **Dashboard de costos:** cuánto costó cada paso, cada comando y cada prompt (`npm run dashboard`).
 
-Jev llega a Claude Code como **servidor MCP** (`jev`): el agente prioriza y revisa con tools, y el hook sigue bloqueando el merge aunque el agente no las use.
-
-La prueba de fuego (`npm run fire`) empieza en rojo en `main` y termina en verde en `refactor/pdp-recorded`.
+Jev llega a Claude Code como **servidor MCP** (`jev`), y un hook bloquea el merge si la revisión no aprueba.
 
 ## Requisitos
 
 - Node 20 o superior
 - Claude Code (para el refactor en vivo y para `npm run compare` en modo live)
-- Una API key de Jev (TypeSafe) solo si quieres respuestas reales; sin ella la demo corre en `replay`.
+- Una API key de Jev (TypeSafe) solo si quieres respuestas reales; sin ella la demo usa las grabaciones.
 
 ## Arranque
 
 ```bash
 npm install
 npx playwright install chromium
-cp .env.example .env          # JEV_MODE=replay por defecto
+cp .env.example .env          # JEV_MODE=auto por defecto
 bash scripts/demo-tags.sh     # ramas locales + tags de respaldo demo/d0 … demo/d5 (una sola vez)
 npm run demo:reset
 npm run dev                   # API :3000 · web :5173 → http://localhost:5173/p/playera-basica
@@ -56,23 +56,26 @@ Se invoca con `/typesafe:typesafe-ai`. Prompts para este repo y cómo encaja con
 
 ## La demo, paso a paso
 
+Tres terminales: `npm run dev`, `npm run dashboard` (http://localhost:4400) y la de los comandos. `npm run demo:reset` abre una sesión nueva: el dashboard muestra solo lo que pase desde ahí.
+
 | Paso | Comando | Qué esperar | Respaldo |
 |---|---|---|---|
-| 0 · Prueba en rojo | `npm run fire` | F1–F4 en rojo en `main` | `git switch --detach demo/d0` |
-| 1 · Priorizar | `npm run prioritize -- PDP-142` | .4 (precio) primero, .3 (URGENTE!!!) abajo, .10 fuera | `demo/d1` |
-| 2 · Opus vs Jev | `npm run compare -- PDP-142` | costo, tiempo y criterios lado a lado | `demo/d2` |
-| 3 · Refactor | `git switch -c refactor/pdp` → `claude --model sonnet` → «Usa la skill pdp-refactor para PDP-142.4; empieza por el test del criterio de aceptación» → `npm run fire -- --only F1` | Claude llama `prioritize_ticket`, hace el commit, llama `review_range` (APROBAR) y F1 queda en verde | `demo/d3`, `git show refactor/pdp-recorded~8 --stat` |
-| 4 · Revisar el PR | `npm run review -- main..refactor/pdp-trap` y en Claude Code «haz merge de refactor/pdp-trap a main» | BLOQUEAR + el hook sale con código 2 | `demo/d4` |
-| 4b · PR limpio | `npm run review -- main..refactor/pdp-recorded` | APROBAR, sin comentario | `demo/d4` |
-| 5 · Prueba en verde | `git switch refactor/pdp-recorded && npm run fire` | F1–F4 en verde | `demo/d5` |
+| 1 · Ticket | abrir `tickets/PDP-142.md` · `npm run fire` | F1–F4 en rojo en `main` | `demo/d0` |
+| 2 · Priorizar | `npm run prioritize -- PDP-142` | .4 (precio) primero, .3 (URGENTE!!!) abajo, .10 fuera | `demo/d1` |
+| 3 · Refactor con Sonnet | `git switch -c refactor/pdp` → `claude --model sonnet` → «Usa la skill pdp-refactor para PDP-142.4; empieza por el test del criterio de aceptación» → `npm run fire -- --only F1` | Sonnet llama `prioritize_ticket`, escribe el test y el cambio, hace el commit, llama `review_range` y F1 queda en verde. El hook `Stop` anota el costo del prompt | `demo/d3`, `git show refactor/pdp-recorded~8 --stat` |
+| 4 · Revisión del PR en local | `npm run review -- main..refactor/pdp` | APROBAR; reporte en `.jev/reviews/`. En modo `auto` reutiliza la respuesta que ya pidió el MCP | `demo/d4` |
+| 4b · (opcional) la trampa | `npm run review -- main..refactor/pdp-trap` y en Claude Code «haz merge de refactor/pdp-trap a main» | BLOQUEAR + el hook sale con código 2 | `demo/d4` |
+| 5 · Resultados | `git switch refactor/pdp-recorded && npm run fire` y recargar la página | F1–F4 en verde: precio con IVA, botón visible, carrito seguro, accesible | `demo/d5` |
+| 6 · Dashboard | http://localhost:4400 (o `npm run cost` en la terminal) | Costo total, Jev vs Claude por paso y la tabla de cada comando y prompt | `npm run cost -- --all` |
 
-Extras: en la sección de reglas, la skill de TypeSafe propone la siguiente regla (prompt 2 de `docs/typesafe-skill.md`). `npm run rules:compare` (la misma revisión sin y con reglas) y `npm run cost` (resumen para la diapositiva de resultados).
+Extras: `npm run compare -- PDP-142` (Opus contra Jev al priorizar) y `npm run rules:compare` (la misma revisión sin y con reglas); los dos también quedan en el dashboard, en «Extra».
 
 ## Modo de Jev
 
 | `JEV_MODE` | Qué hace |
 |---|---|
-| `replay` (default) | Lee `recordings/`. No usa red. |
+| `auto` (default) | Usa la grabación si existe; si no, llama a Jev y la guarda (requiere key). |
+| `replay` | Solo lee `recordings/`. No usa red. |
 | `record` | Llama a Jev (y a Opus en `compare`) y guarda las respuestas. |
 | `live` | Llama a Jev sin guardar. |
 | `simulate` | Genera respuestas de ejemplo. Solo para `npm run recordings:simulate`. |
@@ -104,6 +107,9 @@ Extras: en la sección de reglas, la skill de TypeSafe propone la siguiente regl
 | `e2e/fire.spec.ts` | La prueba de fuego en móvil 390×844 |
 | `CLAUDE.md`, `.claude/` | Reglas de negocio, permisos del MCP, hooks (merge y costo de sesión) y skills (`pdp-refactor`, `compare-models`) |
 | `fixtures/reviews/` | 5 cambios con el veredicto esperado, para `rules:compare` |
+| `metrics/ledger.jsonl` | Un renglón por comando o prompt: paso, motor, tokens, costo y resultado |
+| `scripts/dashboard.ts` | El dashboard de costos (http://localhost:4400) |
+| `.jev/reviews/` | El reporte completo de cada revisión (probabilidades y razones por archivo) |
 | `metrics/` | Resultados de cada corrida (`*.jsonl`) y `config.json` con los PRs al mes |
 
 ## Ramas y tags

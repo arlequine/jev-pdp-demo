@@ -76,6 +76,7 @@ th{color:var(--ink2);font-weight:600;font-size:13px;text-transform:uppercase;let
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 td .eng{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 tr:hover td{background:#202020}
+.scroll{overflow-x:auto}table{min-width:980px}td.t,td.s{white-space:nowrap}td.w{min-width:220px}td.r{min-width:200px}
 .empty{color:var(--muted);padding:24px 0}
 .scroll{overflow-x:auto}
 @media (max-width:700px){.bars{grid-template-columns:120px 1fr 90px}h1{font-size:26px}}
@@ -90,7 +91,7 @@ tr:hover td{background:#202020}
 <div class="legend"><span><i class="sw" style="background:var(--jev)"></i>Jev · decisiones</span><span><i class="sw" style="background:var(--claude)"></i>Claude · generación</span></div>
 <div class="bars" id="bars"></div><p class="note">Las barras usan la misma escala: lo que casi no se ve también es lo que casi no cuesta. Pasa el cursor para ver el monto exacto.</p></section>
 <section class="panel"><h2>Cada comando y cada prompt</h2><div class="scroll"><table><thead><tr>
-<th>Hora</th><th>Paso</th><th>Qué se corrió</th><th>Motor</th><th class="n">Tokens entrada</th><th class="n">Tokens salida</th><th class="n">Costo</th><th class="n">Tiempo</th><th>Resultado</th>
+<th>Hora</th><th>Paso</th><th>Qué se corrió</th><th>Motor</th><th class="n">Entrada</th><th class="n">Salida</th><th class="n">Costo</th><th class="n">Tiempo</th><th>Resultado</th>
 </tr></thead><tbody id="rows"></tbody></table></div>
 <p class="note">Fuente: metrics/ledger.jsonl. Costos a precio de lista (packages/jev-flow/src/prices.ts). Jev cobra solo entrada; Claude incluye caché.</p></section>
 </main>
@@ -127,9 +128,9 @@ function render(d) {
   }).join("") : '<div class="empty">Aún no hay registros en esta sesión. Corre un comando de la demo.</div>';
   $("rows").innerHTML = d.entries.length ? [...d.entries].reverse().map((e) => {
     const [color, name] = ENG[e.engine] ?? ["var(--local)", e.engine];
-    return "<tr><td>" + new Date(e.at).toLocaleTimeString("es-MX") + "</td><td>" + esc(e.step) + "</td><td>" + esc(e.label) + (e.via && e.via !== "cli" ? ' <span style="color:var(--muted)">(' + esc(e.via) + ")</span>" : "") +
-      '</td><td><span class="eng"><i class="sw" style="background:' + color + '"></i>' + name + (e.model && e.engine !== "local" ? " · " + esc(e.model) : "") + "</span></td>" +
-      '<td class="n">' + int(e.inputTokens + (e.cacheReadTokens || 0) + (e.cacheWriteTokens || 0)) + '</td><td class="n">' + int(e.outputTokens) + '</td><td class="n">' + usd(e.costUsd) + '</td><td class="n">' + secs(e.ms) + "</td><td>" + esc(e.result) + (e.simulated ? ' <span style="color:var(--warn)">simulado</span>' : "") + "</td></tr>";
+    return '<tr><td class="t">' + new Date(e.at).toLocaleTimeString("es-MX") + '</td><td class="s">' + esc(e.step) + '</td><td class="w">' + esc(e.label) + (e.via && e.via !== "cli" ? ' <span style="color:var(--muted)">(' + esc(e.via) + ")</span>" : "") +
+      '</td><td><span class="eng"><i class="sw" style="background:' + color + '"></i>' + name + "</span>" + (e.model && e.engine !== "local" ? '<div style="color:var(--muted);font-size:12px;white-space:nowrap">' + esc(e.model) + "</div>" : "") + "</td>" +
+      '<td class="n">' + int(e.inputTokens + (e.cacheReadTokens || 0) + (e.cacheWriteTokens || 0)) + '</td><td class="n">' + int(e.outputTokens) + '</td><td class="n">' + usd(e.costUsd) + '</td><td class="n">' + secs(e.ms) + '</td><td class="r">' + esc(e.result) + (e.simulated ? ' <span style="color:var(--warn)">simulado</span>' : "") + "</td></tr>";
   }).join("") : '<tr><td colspan="9" class="empty">Sin registros todavía.</td></tr>';
 }
 async function tick() {
