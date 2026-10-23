@@ -38,4 +38,4 @@ export function modelFamily(model: string): "sonnet" | "opus" | null {
 }
 
 export const usd = (n: number | undefined | null) =>
-  n == null ? "sin dato" : n < 0.01 ? `USD ${n.toFixed(6)}` : `USD ${n.toFixed(4)}`;
+  n == null ? "sin dato" : n === 0 ? "USD 0" : n < 0.01 ? `USD ${n.toFixed(6)}` : `USD ${n.toFixed(4)}`;
