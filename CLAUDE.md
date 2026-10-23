@@ -27,4 +27,5 @@ Monorepo TypeScript: `apps/api` (Express + zod, puerto 3000), `apps/web` (React 
 - Usa la skill de TypeSafe (`/typesafe:typesafe-ai`) y lee la doc viva de la API antes de tocar `jev-flow`, `jev-mcp` o `jev.rules.ts`. No inventes campos de request ni de respuesta.
 - Preguntas y umbrales viven en `jev.rules.ts`; reglas, cuentas y efectos, en código.
 - La confianza no es permiso para actuar: los umbrales se ajustan con `tickets/*.truth.json` y `fixtures/reviews`.
-- Si cambias una pregunta, regraba los replays (`JEV_MODE=record`).
+- Si cambias una pregunta o el modelo, regraba los replays (`JEV_MODE=record`).
+- El modelo es el alias `jev-latest`; no lo cambies sin pedirlo. El snapshot que respondió queda en `metrics/`.

@@ -15,7 +15,9 @@ loadEnv();
 //   simulate genera respuestas de ejemplo y las guarda marcadas como simuladas
 export type Mode = "live" | "record" | "replay" | "simulate";
 export const mode = (): Mode => (process.env.JEV_MODE as Mode) || "replay";
-export const model = () => process.env.JEV_MODEL || "jev-1.13";
+// Alias por defecto: jev-latest (sigue a la versión más nueva). Para fijar una versión: JEV_MODEL=<nombre de /v1/models>.
+export const model = () => process.env.JEV_MODEL || "jev-latest";
+export const isAlias = (m: string) => /-(latest|preview)$/.test(m);
 
 const DIR = at("recordings/jev");
 
@@ -59,6 +61,19 @@ export async function askJev(state: unknown, questions: Questions, label: string
   return { ...response, durationMs, source: "live", simulated: m === "simulate", costUsd: jevCost(response.usage.input_tokens) };
 }
 
+// Con un alias, el campo `model` de la respuesta dice qué snapshot contestó. Lo avisamos una vez por proceso
+// y queda en metrics/*.jsonl: si cambia, revisa umbrales y regraba los replays.
+let lastSnapshot = "";
+function noteSnapshot(requested: string, answered?: string) {
+  if (!answered || answered === lastSnapshot) return;
+  lastSnapshot = answered;
+  if (isAlias(requested)) {
+    console.error(`\x1b[36mℹ ${requested} respondió con el snapshot ${answered}.\x1b[0m`);
+  } else if (!answered.startsWith(requested)) {
+    console.error(`\x1b[33m⚠ Pediste ${requested} y respondió ${answered}; los umbrales se calibraron con ${requested}.\x1b[0m`);
+  }
+}
+
 /** Mismas variables que los SDKs de TypeSafe (TYPESAFE_API_KEY, TYPESAFE_BASE_URL). JEV_* queda por compatibilidad. */
 export function apiConfig() {
   const key = process.env.TYPESAFE_API_KEY || process.env.JEV_API_KEY;
@@ -82,11 +97,13 @@ async function callApi(req: JevRequest): Promise<JevResponse> {
       await new Promise((r) => setTimeout(r, wait));
       continue;
     }
-    if (!res.ok) throw new Error(`Jev respondió ${res.status}: ${await res.text()}`);
-    const body = (await res.json()) as JevResponse;
-    if (body.model && !body.model.startsWith(req.model)) {
-      console.warn(`\x1b[33m⚠ Respondió el snapshot ${body.model}; los umbrales están calibrados contra ${req.model}.\x1b[0m`);
+    if (!res.ok) {
+      const detail = await res.text();
+      const hint = res.status === 400 ? ` Revisa el modelo «${req.model}» con npm run jev:models (o cambia JEV_MODEL).` : "";
+      throw new Error(`Jev respondió ${res.status}: ${detail}.${hint}`);
     }
+    const body = (await res.json()) as JevResponse;
+    noteSnapshot(req.model, body.model);
     return body;
   }
   throw new Error("Jev siguió respondiendo 429 después de 3 intentos.");

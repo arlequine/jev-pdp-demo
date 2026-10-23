@@ -1,0 +1,35 @@
+{
+  "label": "rules-compare:broad:01-format-price",
+  "simulated": true,
+  "recordedAt": "2026-10-23T00:31:21.432Z",
+  "durationMs": 165,
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "declared_subtask": {
+        "id": "PDP-142.4"
+      },
+      "file": "apps/web/src/components/PriceBlock.tsx",
+      "diff": "@@ -1,5 +1,9 @@\n-export function PriceBlock({ cents }: { cents: number }) {\n-  return <div>${cents / 100}</div>;\n+const mxn = new Intl.NumberFormat(\"es-MX\", { style: \"currency\", currency: \"MXN\" });\n+\n+export function PriceBlock({ totalCents }: { totalCents: number }) {\n+  return (\n+    <p>{mxn.format(totalCents / 100)} <small>IVA incluido</small></p>\n+  );\n }"
+    },
+    "questions": {
+      "safe_to_merge": {
+        "type": "noul",
+        "instructions": "Is the change in `diff` good to merge?"
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13-20260917",
+    "answers": {
+      "safe_to_merge": {
+        "type": "noul",
+        "noul": 0.63
+      }
+    },
+    "usage": {
+      "input_tokens": 169,
+      "output_tokens": 70
+    }
+  }
+}

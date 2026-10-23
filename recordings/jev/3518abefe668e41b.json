@@ -1,0 +1,35 @@
+{
+  "label": "rules-compare:broad:04-drop-alt",
+  "simulated": true,
+  "recordedAt": "2026-10-23T00:31:21.433Z",
+  "durationMs": 181,
+  "request": {
+    "model": "jev-latest",
+    "state": {
+      "declared_subtask": {
+        "id": "PDP-142.7"
+      },
+      "file": "apps/web/src/components/Gallery.tsx",
+      "diff": "@@ -4,7 +4,7 @@\n   return (\n     <div>\n       {images.map((img) => (\n-        <img key={img.src} src={img.src} alt={img.alt} />\n+        <img key={img.src} src={img.src} />\n       ))}\n     </div>\n   );"
+    },
+    "questions": {
+      "safe_to_merge": {
+        "type": "noul",
+        "instructions": "Is the change in `diff` good to merge?"
+      }
+    }
+  },
+  "response": {
+    "model": "jev-1.13-20260917",
+    "answers": {
+      "safe_to_merge": {
+        "type": "noul",
+        "noul": 0.63
+      }
+    },
+    "usage": {
+      "input_tokens": 122,
+      "output_tokens": 70
+    }
+  }
+}

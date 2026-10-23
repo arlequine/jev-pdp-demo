@@ -82,7 +82,7 @@ export function simulate(req: JevRequest, label: string): JevResponse {
     else answers[id] = choiceAnswer(q, typeof v === "string" ? v : Object.keys(q.criteria)[0]);
   }
   return {
-    model: `${req.model}-20260917`,
+    model: req.model.endsWith("-latest") ? "jev-1.13-20260917" : `${req.model}-20260917`,
     answers,
     usage: { input_tokens: Math.ceil(JSON.stringify(req).length / 3.6), output_tokens: 70 },
   };

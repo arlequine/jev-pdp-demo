@@ -116,6 +116,14 @@ Extras: en la sección de reglas, la skill de TypeSafe propone la siguiente regl
 | `refactor/pdp` | La rama del refactor en vivo (la borra `npm run demo:reset`) |
 | tags `demo/d0` … `demo/d5` | Estado de respaldo de cada paso |
 
+## Modelo
+
+Por defecto se usa el alias **`jev-latest`**, que sigue a la versión más nueva de Jev. Cada respuesta trae el snapshot que contestó (p. ej. `jev-1.13-20260917`); la terminal lo muestra y queda en `metrics/*.jsonl` y en `.jev/plan.json`.
+
+- Si el snapshot cambia, corre de nuevo `npm run prioritize` y `npm run rules:compare` para revisar que los umbrales de `jev.rules.ts` sigan cumpliendo los criterios, y regraba los replays.
+- Para fijar una versión, pon en `.env` `JEV_MODEL=<nombre exacto que liste npm run jev:models>`. Si la API responde 400 por el modelo, el error lo indica.
+- Cambiar el modelo cambia el request, así que las grabaciones de replay de otro modelo no sirven: regrábalas con `JEV_MODE=record`.
+
 ## Supuestos
 
 - **Formato de reglas:** Jev no tiene un archivo oficial de reglas; su API recibe `{ model, state, questions }`. `jev.rules.ts` y sus helpers son una convención de este repo.

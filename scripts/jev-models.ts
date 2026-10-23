@@ -1,4 +1,4 @@
-// npm run jev:models — prueba tu TYPESAFE_API_KEY y confirma que jev-1.13 está disponible.
+// npm run jev:models — prueba tu TYPESAFE_API_KEY y confirma que el modelo de JEV_MODEL (jev-latest por defecto) está disponible.
 // GET {TYPESAFE_BASE_URL}/v1/models (docs.typesafe.ai/api/list-models). No gasta tokens.
 import { apiConfig, model } from "../packages/jev-flow/src/jev/client.js";
 

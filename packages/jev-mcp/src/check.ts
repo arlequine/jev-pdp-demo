@@ -35,7 +35,7 @@ const bad = await client.callTool({ name: "review_range", arguments: { range: "m
 ok("review_range rechaza un rango inválido", !!(bad as any).isError);
 
 const rules = parse(await client.callTool({ name: "get_rules", arguments: {} }));
-ok(`get_rules: ${rules.model} · bloquear ≥ ${rules.thresholds.block}`, rules.model === "jev-1.13");
+ok(`get_rules: ${rules.model} · bloquear ≥ ${rules.thresholds.block}`, rules.model === "jev-latest");
 
 const plan = await client.readResource({ uri: "jev://plan" });
 ok("resource jev://plan", JSON.parse((plan.contents[0] as any).text).ticket === "PDP-142");

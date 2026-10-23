@@ -4,7 +4,7 @@
 import { choice, defineRules, noul, score } from "./packages/jev-flow/src/rules.js";
 
 export default defineRules({
-  model: "jev-1.13", // fijado: los umbrales están calibrados contra esta versión
+  model: "jev-latest", // alias: sigue a la versión más nueva. El snapshot que respondió queda en metrics/; si cambia, recalibra umbrales.
   lang: "en", // instrucciones en inglés (Jev es más preciso); el state puede venir en español
 
   // 1. Priorización de tickets: 8 preguntas por subtarea, en un solo request.

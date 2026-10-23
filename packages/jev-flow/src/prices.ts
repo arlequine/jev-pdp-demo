@@ -1,6 +1,6 @@
 // Precios de lista en USD por millón de tokens. Confírmalos antes de presentar.
 export const PRICES = {
-  "jev-1.13": { input: 0.042, output: 0 },
+  jev: { input: 0.042, output: 0 }, // jev-latest / jev-1.x
   sonnet: { input: 2, output: 10 },
   opus: { input: 4, output: 20 },
 } as const;
@@ -10,7 +10,7 @@ export const CACHE_WRITE = 1.25;
 export const CACHE_READ = 0.1;
 
 export function jevCost(inputTokens: number) {
-  return (inputTokens / 1_000_000) * PRICES["jev-1.13"].input;
+  return (inputTokens / 1_000_000) * PRICES.jev.input;
 }
 
 export type ClaudeUsage = {
